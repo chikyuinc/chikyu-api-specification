@@ -1,4 +1,6 @@
 # 概要
+ **内容は全てリリース前のものであり、予告なく変更となる場合があります**
+
 ちきゅうの公開APIの仕様について説明します。
 
  * プロトコルは全て「https」を利用。
@@ -65,6 +67,9 @@ Class2はcurlで手軽にリクエストを送信することができません�
 
 ```test.rb
 require 'chikyu/sdk' # 事前にインスト−ルしておく。
+
+# 2018/05/15現在、まだ本番環境が存在しないため、接続先の指定が必要。
+Chikyu::Sdk::ApiConfig.mode = 'devdc'
 
 # トークンを生成(一度生成したら、値を保存しておくことで再利用可能)
 token = Chikyu::Sdk::SecurityToken.create 'token_name', 'email', 'password'
