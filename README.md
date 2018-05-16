@@ -14,13 +14,13 @@
 ## class0
  * 認証なし、エンドポイントにリクエストを送信するだけで利用可能。
 
-リクエスト送信例
+curlによるリクエスト送信例
 ```
 curl -X POST -H 'Content-Type:application/json' -d '{"data": {"token_name":"name", "email":"email", "password":"password"}}' https://gateway.chikyu.mobi/dev/api/v2/open/session/token/create
 ```
 
 ## class1
- * HTTPヘッダに2つの認証用ヘッダを追加し、エンドポイントにリクエストを送信する。
+ * HTTPヘッダに2つの認証用フィールド(APIキー)を追加し、エンドポイントにリクエストを送信する。
    * x-api-key
    * x-auth-key
  * 認証キーは、class-2のAPIとしてそれを生成するエンドポイントが存在する。
@@ -30,7 +30,7 @@ curl -X POST -H 'Content-Type:application/json' -d '{"data": {"token_name":"name
  * APIキーの有効期限は設定されない(不要になったら削除)。
  * オプションとして、APIキーを利用可能なIPアドレスリストを指定できる。
 
-リクエスト送信例
+curlによるリクエスト送信例
 ```
 export API_KEY=AAAABBBBCCC
 export AUTH_KEY=XXXXXXYYYYYYYZZZZZZZ
@@ -38,7 +38,7 @@ curl -X POST -H 'Content-Type:application/json' -H "x-api-key:$API_KEY" -H "x-au
 ```
 
 ## class2
- * 認証に複雑な手順が必要なものの、ちきゅうの持つ様々な機能を呼び出せる。
+ * 「認証トークン」から「セッション」を生成し、それを利用して通信を行う。
    * メールアドレスとパスワードから、認証トークンを生成。
    * 認証トークンから、セッションを生成。
    * 生成したセッション情報を元に、AWSの提供する「署名バージョン4署名プロセス」に準拠するリクエスト署名を行って送信。
@@ -71,10 +71,10 @@ require 'chikyu/sdk' # 事前にインスト−ルしておく。
 # 2018/05/15現在、まだ本番環境が存在しないため、接続先の指定が必要。
 Chikyu::Sdk::ApiConfig.mode = 'devdc'
 
-# トークンを生成(一度生成したら、値を保存しておくことで再利用可能)
+# トークンを生成(一度生成したら値を保存しておくことで、長期間に渡り再利用可能)
 token = Chikyu::Sdk::SecurityToken.create 'token_name', 'email', 'password'
 
-# セッションを生成(利用する度に生成)
+# セッションを生成(再利用できるのは最大で12時間まで)
 session = Chikyu::Sdk::Session.login(
   token_name: 'token_name',
   login_token: token[:login_token],
