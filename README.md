@@ -113,4 +113,4 @@ https://endpoint.chikyu.net/api/v2/public/
 https://endpoint.chikyu.net/api/v2/secure/
 
 # APIリスト
-http://dev-docs.chikyu.mobi/
+ちきゅう内にあるチャットツールからCSにお問い合わせください。
