@@ -103,6 +103,7 @@ p invoker.invoke(
   タスク | tasks
   商談(繰り返し計上) | repeat_recorded_business_discussions
   商談商品 | opportunity_merchandises
+  カスタムオブジェクト | カスタムオブジェクト作成時に設定したオブジェクトキー
 
 # API base URL
 ## class0
