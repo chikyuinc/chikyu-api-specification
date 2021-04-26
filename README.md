@@ -36,7 +36,7 @@ export AUTH_KEY=XXXXXXYYYYYYYZZZZZZZ
 curl -X POST -H 'Content-Type:application/json' -H "x-api-key:$API_KEY" -H "x-auth-key:$AUTH_KEY" -d '{"data": {"page_index":0, "items_per_page":10}}' https://endpoint.chikyu.net/api/v2/public/entity/prospects/list
 ```
 
-## class2
+## class2 (SDK導入の方はここをご確認ください。)
  * 「認証トークン」から「セッション」を生成し、それを利用して通信を行います。
    * メールアドレスとパスワードから、認証トークンを生成します。
    * 認証トークンから、セッションを生成します。
@@ -54,36 +54,72 @@ curl -X POST -H 'Content-Type:application/json' -H "x-api-key:$API_KEY" -H "x-au
    * セッションの生成 / 破棄
    * 署名済みリクエストの発行
  * SDKは以下の言語に対応しております。
-   * Ruby
-   * Java
+   * NodeJS (推奨)
    * JavaScript(jQuery)
    * Python
+ * 以下のSDKは存在はしますが、古くなっており、現在は非推奨となっております。
+   * Java
    * PHP
+   * Ruby
 
 Class2はcurlで手軽にリクエストを送信することができません。
 
-以下、Rubyの場合の例となります(詳しくはSDKのレポジトリを参照して下さい)。
+以下、NodeJSの場合の例となります(詳しくはSDKのレポジトリを参照して下さい)。
 
-```test.rb
-require 'chikyu/sdk' # 事前にインスト−ルしておく。
+get_login.js（ログイン情報を使用してトークンを生成する。）
+```
+const chikyu = require('./lib/chikyu');
 
-# トークンを生成(一度生成したら値を保存しておくことで、長期間に渡り再利用可能)
-token = Chikyu::Sdk::SecurityToken.create 'token_name', 'email', 'password'
+// ここにログイン用のトークンネームをユーザー側で好きな文字列を設定します。
+// 以下は例なのでそのまま使用しないでください。
+token_name = 'nodejssdk_login001';
+// ここにちきゅうにログインできるログインユーザーID(メールアドレス)
+email = 'こちらを設定してください';
+// その時のパスワード
+password = 'こちらを設定してください';
 
-# セッションを生成(再利用できるのは最大で12時間まで)
-session = Chikyu::Sdk::Session.login(
-  token_name: 'token_name',
-  login_token: token[:login_token],
-  login_secret_token: token[:login_secret_token]
-)
+// コンソールなどで、「node get_login.js」と、nodeで、このファイルを実行することにより、
+// 以下が実行されて、ログインするためのtokenとsecret_tokenがリターンされますので、
+// 上記に設定したtoken_nameと、リターンされたtokenとsecret_tokenを設定してご使用ください。
+// 別ファイルのtest.jsに、トークン設定例を示します。
+chikyu.token.create(token_name, email, password).then((r) => {
+  console.log(r);
+}).catch((e) => {
+  console.log(e);
+});
+```
 
-invoker = Chikyu::Sdk::SecureResource.new session
+test.js（トークンを設定してログインしてAPIを実行する例。）
+```
+const chikyu = require('./lib/chikyu');
 
-# APIを呼び出し
-p invoker.invoke(
-  path: '/entity/companies/list', 
-  data: {items_per_page: 10, page_index: 0}
-)
+// トークンを一度生成したら、以下のように値を保存しておくことで、長期間に渡りログイン時に再利用可能
+
+// ここにログイン用のトークンネームをユーザー側で好きな文字列を設定します。
+// ここに、get_login.jsに設定したtoken_nameをセットしてください。
+// 以下は例なのでそのまま使用しないでください。
+token_name = 'nodejssdk_login001';
+// ここに、get_login.jsでリターンされたtokenをセットしてください。
+token = 'ここにget_login.jsでリターンされたtokenをセット';
+// ここに、get_login.jsでリターンされたsecret_tokenをセットしてくださいをセットしてください。
+secret_token = 'ここにget_login.jsでリターンされたsecret_tokenをセットしてください';
+
+// セッションを生成(再利用できるのは最大で12時間まで)
+
+// 上記で、設定された、token_name, token, secret_tokenの３つによって、ログインができます。
+chikyu.session.login(token_name, token, secret_token).then((r) => {
+
+  // ログイン後に、APIの実行
+
+  // 以下はログイン後に、一覧取得の基本APIの「/entity/ここに取得したいオブジェクト名/list」に、
+  // 商談(business_discussions)をセットして、商談の一覧Listを取得した例です。
+  // ページ設定は必須です。page_index→0からスタートで何ページ目からか。items_per_page→１ページの表示件数。(Maxは500)
+  return chikyu.secure.invoke('/entity/business_discussions/list', {'items_per_page': 10, 'page_index': 0}).then((d) => {
+    console.log(d);
+  });
+}).catch((e) => {
+  console.log(e);
+});
 ```
 
 # Webhook
