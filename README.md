@@ -2,29 +2,30 @@
  ちきゅうの公開APIの仕様について説明します。
 
  * プロトコルは全て「https」を利用しています。
- * リクエスト / レスポンスはどちらも「JSON」となります。
- * メソッドはPOSTのみとなります。
- * 認証方式により、「class0」「class1」「class2」に分けられます。
- * 契約プランにより、呼び出し回数に制限が設定されています。
- * 
+ * リクエスト/レスポンスはどちらも「JSON」となります。
+ * リクエストで受け付けているHTTPメソッドはPOSTのみとなります。
+ * 認証方式により、「class0」「class1」「class2」という種別に分けられます。詳細はページ下部に記載しております。
+ * ご契約プランにより、APIの呼び出し回数に制限が設定されています。
+ 
+ 
 # APIのレベル
 
 ## class0
- * 認証なし、エンドポイントにリクエストを送信するだけで利用可能です。
+ * 認証なしのAPIです。エンドポイントにリクエストを送信するだけで利用可能です。
 
 curlによるリクエスト送信例
 ```
-curl -X POST -H 'Content-Type:application/json' -d '{"data": {"token_name":"name", "email":"email", "password":"password"}}' https://endpoint.chikyu.net/api/v2/open/session/token/create
+curl -X POST -H 'Content-Type:application/json' -d '{"data": {"token_name":"token_name", "email":"email", "password":"password"}}' https://endpoint.chikyu.net/api/v2/open/session/token/create
 ```
 
 ## class1
  * HTTPヘッダに2つの認証用フィールド(APIキー)を追加し、エンドポイントにリクエストを送信します。
    * x-api-key
    * x-auth-key
- * 認証キーは別のAPIを経由し、事前に生成しておきます。
+ * 認証キーはAPIにより、事前に生成しておきます。
    * キーを生成するAPIは、後述の「class2」のAPIを利用します。
  * 生成の際は関連するロールのIDが必須となり、それによって呼び出し可能なメソッドに制限がかかります。
- * 作成されたデータの作成者/変更者は「APIユーザー」となります。
+ * 作成・更新されたデータの作成者/更新者は「APIユーザー」という名称になります。
    * ちきゅうに登録されているユーザーとは関連付けられません。
  * APIキーの有効期限は設定されません(不要になったら削除を行ってください)。
  * オプションとして、APIキーを利用可能なIPアドレスリストを指定できます。
@@ -149,5 +150,5 @@ https://endpoint.chikyu.net/api/v2/public/
 ## class2
 https://endpoint.chikyu.net/api/v2/secure/
 
-# APIリスト
+# APIドキュメント
 ちきゅう内にあるチャットツールからCSにお問い合わせください。
